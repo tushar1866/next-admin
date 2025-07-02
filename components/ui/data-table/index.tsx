@@ -1,7 +1,7 @@
 // components/ui/Table.tsx
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   getFilteredRowModel,
   getCoreRowModel,
@@ -11,6 +11,7 @@ import {
   ColumnFiltersState,
   RowSelectionState,
   flexRender,
+  SortingState,
 } from "@tanstack/react-table";
 import {
   Table as ShadcnTable,
@@ -23,6 +24,7 @@ import {
 import { DebouncedInput, ColumnFilter } from "./filters";
 import { TableProps } from "./types";
 import { PaginationControls } from "./pagination";
+import { SortAsc, SortDesc } from "lucide-react";
 
 const createGlobalFilterFn = <T extends Record<string, unknown>>(
   excludeKeys: (keyof T)[] | undefined = []
@@ -65,7 +67,7 @@ export function DataTable<T extends Record<string, unknown>, K extends string>(
     const [globalFilter, setGlobalFilter] = useState("");
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
     const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
-
+    const [sorting, setSorting] = useState<SortingState>([]);
     const globalFilterFn = createGlobalFilterFn(globalFilterExcludeKeys);
 
     const table = useReactTable({
@@ -75,9 +77,11 @@ export function DataTable<T extends Record<string, unknown>, K extends string>(
         columnFilters,
         globalFilter,
         rowSelection,
+        sorting,
       },
       onGlobalFilterChange: setGlobalFilter,
       onColumnFiltersChange: setColumnFilters,
+      onSortingChange: setSorting,
       onRowSelectionChange: setRowSelection,
       getCoreRowModel: getCoreRowModel(),
       getFilteredRowModel: getFilteredRowModel(),
@@ -97,7 +101,6 @@ export function DataTable<T extends Record<string, unknown>, K extends string>(
         }
       }
     }, [rowSelection, selectionMode]);
-
     useEffect(() => {
       if (onRowSelectionChange) {
         const selected = table
@@ -106,27 +109,73 @@ export function DataTable<T extends Record<string, unknown>, K extends string>(
         onRowSelectionChange(selected);
       }
     }, [onRowSelectionChange, table]);
-
     useEffect(() => {
       if (onRowCountChange) {
         onRowCountChange(table.getFilteredRowModel);
       }
     }, [table, onRowCountChange]);
+    const handleGlobalFilterChange = useCallback(
+      (value: string) => {
+        if (onFilterChange) {
+          onFilterChange({
+            globalFilter: value,
+            columnFilters,
+            sorting,
+          });
+        }
+      },
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      [globalFilter]
+    );
+    const handleColumnFiltersChange = useCallback(
+      (filters: ColumnFiltersState) => {
+        setColumnFilters(filters);
+        if (onFilterChange) {
+          onFilterChange({
+            globalFilter,
+            columnFilters: filters,
+            sorting,
+          });
+        }
+      },
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      [columnFilters]
+    );
+    const handleSortingChange = useCallback(
+      (newSorting: SortingState) => {
+        if (onFilterChange) {
+          onFilterChange({
+            globalFilter,
+            columnFilters,
+            sorting: newSorting,
+          });
+        }
+      },
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      [sorting]
+    );
+    useEffect(() => {
+      handleColumnFiltersChange(columnFilters);
+    }, [columnFilters, handleColumnFiltersChange]);
 
     useEffect(() => {
-      if (onFilterChange) {
-        onFilterChange({ globalFilter, columnFilters });
-      }
-    }, [onFilterChange, globalFilter, columnFilters]);
+      handleGlobalFilterChange(globalFilter);
+    }, [globalFilter, handleGlobalFilterChange]);
+
+    useEffect(() => {
+      handleSortingChange(sorting);
+    }, [sorting, handleSortingChange]);
 
     return (
       <div className="space-y-4">
-        {tableHeader && (
+        {
           <div className="flex justify-between items-center">
             {enableGlobalFilter && (
               <DebouncedInput
                 value={globalFilter ?? ""}
-                onChange={(v) => setGlobalFilter(String(v))}
+                onChange={(v) => {
+                  setGlobalFilter(v.toString());
+                }}
                 type="text"
                 className="w-64"
                 placeholder={globalPlaceHolder ?? "Search..."}
@@ -134,29 +183,39 @@ export function DataTable<T extends Record<string, unknown>, K extends string>(
             )}
             {tableHeader}
           </div>
-        )}
+        }
 
         <div className="rounded-md border overflow-x-auto">
-          <ShadcnTable className="table-auto">
+          <ShadcnTable>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id} className="text-left p-2">
-                      {header.isPlaceholder ? null : (
-                        <button
-                          type="button"
-                          onClick={header.column.getToggleSortingHandler()}
-                          className="cursor-pointer select-none"
-                        >
-                          {header.column.columnDef.header as React.ReactNode}
-                          {header.column.getIsSorted() === "asc" && " 🔼"}
-                          {header.column.getIsSorted() === "desc" && " 🔽"}
-                        </button>
-                      )}
-                      {enableColumnFilters && header.column.getCanFilter() && (
-                        <ColumnFilter column={header.column} />
-                      )}
+                    <TableHead
+                      key={header.id}
+                      className="text-left p-2 align-top"
+                    >
+                      <div className="max-w-fit flex flex-col items-start gap-1">
+                        {header.isPlaceholder ? null : (
+                          <button
+                            type="button"
+                            onClick={header.column.getToggleSortingHandler()}
+                            className="cursor-pointer select-none flex items-center gap-1 text-sm"
+                          >
+                            {header.column.columnDef.header as React.ReactNode}
+                            {header.column.getIsSorted() === "asc" && (
+                              <SortAsc size={14} />
+                            )}
+                            {header.column.getIsSorted() === "desc" && (
+                              <SortDesc size={14} />
+                            )}
+                          </button>
+                        )}
+                        {enableColumnFilters &&
+                          header.column.getCanFilter() && (
+                            <ColumnFilter column={header.column} />
+                          )}
+                      </div>
                     </TableHead>
                   ))}
                 </TableRow>
@@ -188,15 +247,13 @@ export function DataTable<T extends Record<string, unknown>, K extends string>(
               )}
             </TableBody>
           </ShadcnTable>
+          <PaginationControls
+            limit={data.limit}
+            skip={data.skip}
+            total={data.total}
+            onPageChange={onPageChange}
+          />
         </div>
-
-        {/* Pagination */}
-        <PaginationControls
-          limit={data.limit}
-          skip={data.skip}
-          total={data.total}
-          onPageChange={onPageChange}
-        />
       </div>
     );
   };

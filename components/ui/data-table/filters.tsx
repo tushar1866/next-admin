@@ -44,7 +44,6 @@ export function DebouncedInput({
       size="sm"
       value={value}
       onChange={(e) => setValue(e.target.value)}
-      className="mt-2"
       {...props}
     />
   );
@@ -62,11 +61,7 @@ export const ColumnFilter = <T extends Record<string, unknown>>({
     const tempUniqueValues = Array.from(column.getFacetedUniqueValues().keys());
     return tempUniqueValues.filter((v) => typeof v === "string");
   }, [column]);
-  const handleGlobalFilterChange = React.useCallback(
-    (value: string | number | React.ChangeEventHandler<HTMLInputElement>) =>
-      column.setFilterValue(value),
-    [column]
-  );
+
   if (filterVariant === "select") {
     const selected = new Set(columnFilterValue ?? []);
 
@@ -88,19 +83,19 @@ export const ColumnFilter = <T extends Record<string, unknown>>({
           <Button
             variant="outline"
             size="sm"
-            className="block py-0 justify-between bg-transparent"
+            className="min-w-20 w-fit px-1 py-0 text-xs bg-transparent"
           >
             {selected.size ? `${selected.size} selected` : "Filter..."}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-52 p-2 space-y-2">
+        <PopoverContent className="max-w-fit p-2 space-y-2">
           <ScrollArea className="max-h-40 pr-1">
             {uniqueOptions.map((option) => (
               <div key={option} className="flex items-center gap-2 py-1">
                 <Checkbox
                   id={option}
                   checked={selected.has(option)}
-                  className="border border-primary"
+                  className="border border-primary-foreground"
                   onCheckedChange={() => toggleOption(option)}
                 />
                 <label htmlFor={option} className="text-sm">
@@ -129,8 +124,10 @@ export const ColumnFilter = <T extends Record<string, unknown>>({
     <DebouncedInput
       type="text"
       value={(columnFilterValue ?? "") as string}
-      onChange={handleGlobalFilterChange}
-      className="m-0 py-0"
+      onChange={(value) => {
+        column.setFilterValue(value);
+      }}
+      className="w-full"
       placeholder="Filter..."
     />
   );

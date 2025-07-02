@@ -44,7 +44,7 @@ const ActionCell = ({
 };
 export default function UserPage() {
   const { confirm } = useAlert();
-  const { data, isLoading, error, paginate } = useUsers();
+  const { data, isLoading, error, paginate, filter } = useUsers();
   const deleteUser = useDeleteUser();
   const [open, setOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -60,7 +60,7 @@ export default function UserPage() {
     {
       accessorKey: "id",
       header: "ID",
-      size: 40,
+      enableColumnFilter: false,
     },
     {
       accessorKey: "firstName",
@@ -149,6 +149,13 @@ export default function UserPage() {
         selectionMode="multiple"
         globalFilterExcludeKeys={["id"]}
         onPageChange={paginate}
+        onFilterChange={({ globalFilter, sorting }) => {
+          filter({
+            q: globalFilter,
+            sortBy: sorting?.[0]?.id,
+            order: sorting?.[0]?.desc ? "desc" : "asc",
+          });
+        }}
       />
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="h-[97vh] max-h-screen p-0">

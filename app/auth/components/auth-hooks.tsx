@@ -1,21 +1,20 @@
-import { useMutation, UseMutationResult } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { SignInAPI, SignUpAPI } from "@/lib/apis/services";
 import { SignInFormValues, SignUpFormValues } from "@/lib/validations/auth";
-import { AxiosResponse } from "axios";
 import {
   showErrorToast,
   showSuccessToast,
 } from "@/components/providers/hooks/use-toast";
 import { useRouter } from "next/navigation";
-export const useSignUp = (): UseMutationResult<
-  AxiosResponse,
-  Error,
-  SignUpFormValues
-> => {
+import { login } from "@/store/auth";
+
+export const useSignUp = () => {
   return useMutation({
-    mutationFn: (data) => SignUpAPI(data),
+    mutationFn: (data: SignUpFormValues) => SignUpAPI(data),
     onSuccess: (data) => {
-      console.log("Registered:", data);
+      if (data.user) {
+        login(data.user, "", "");
+      }
       showSuccessToast("Registration successful", {
         description: "You may now log in.",
       });
@@ -27,17 +26,14 @@ export const useSignUp = (): UseMutationResult<
   });
 };
 
-export const useSignIn = (): UseMutationResult<
-  AxiosResponse,
-  Error,
-  SignInFormValues
-> => {
+export const useSignIn = () => {
   const router = useRouter();
-
   return useMutation({
-    mutationFn: (data) => SignInAPI(data),
+    mutationFn: (data: SignInFormValues) => SignInAPI(data),
     onSuccess: (data) => {
-      localStorage.setItem("token", data.accessToken);
+      if (data.user && data.accessToken) {
+        login(data.user, data.accessToken, data.refreshToken);
+      }
       showSuccessToast("Login successful");
       router.push("/dashboard");
     },

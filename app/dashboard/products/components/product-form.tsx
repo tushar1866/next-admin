@@ -1,50 +1,77 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { useState, useEffect } from "react";
+import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { productSchema, ProductFormValues } from "@/lib/validations/product";
 import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+  productSchema,
+  Product,
+  productDefaultValues,
+} from "@/lib/validations/product";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
 import { useCreateProduct, useUpdateProduct } from "./product-hooks";
-import { useEffect } from "react";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
-interface ProductFormProps {
-  defaultValues?: ProductFormValues;
-  productId?: number;
-  onClose: () => void;
+import ProductBasicFormStep from "./steps/basic-details";
+import ProductDetailsFormStep from "./steps/product-details";
+import ProductPolicyFormStep from "./steps/policy-details";
+import ProductMetaFormStep from "./steps/product-meta";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
+const steps = [
+  {
+    label: "Basic Info",
+    Component: ProductBasicFormStep,
+  },
+  {
+    label: "Details",
+    Component: ProductDetailsFormStep,
+  },
+  {
+    label: "Policies",
+    Component: ProductPolicyFormStep,
+  },
+  {
+    label: "Meta",
+    Component: ProductMetaFormStep,
+  },
+];
+
+interface MultiStepProductFormProps {
+  readonly defaultValues?: Product;
+  readonly productId?: number;
+  readonly onClose: () => void;
 }
 
-export const ProductForm: React.FC<ProductFormProps> = ({
+export default function MultiStepProductForm({
   defaultValues,
   productId,
   onClose,
-}) => {
-  const form = useForm<ProductFormValues>({
+}: MultiStepProductFormProps) {
+  const [step, setStep] = useState(0);
+  const form = useForm<Product>({
     resolver: zodResolver(productSchema),
-    defaultValues,
+    defaultValues: defaultValues ?? productDefaultValues,
+    mode: "onBlur",
   });
 
   const createProduct = useCreateProduct();
   const updateProduct = useUpdateProduct();
 
-  useEffect(() => {
-    if (defaultValues) {
-      form.reset(defaultValues);
-    }
-  }, [defaultValues, form]);
+  const isLastStep = step === steps.length - 1;
+  const isFirstStep = step === 0;
 
-  const onSubmit = (values: ProductFormValues) => {
+  useEffect(() => {
+    if (defaultValues) form.reset(defaultValues);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [defaultValues]);
+
+  const onSubmit = async (values: Product) => {
     if (productId) {
       updateProduct.mutate(
         { id: productId, data: values },
@@ -55,121 +82,110 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     }
   };
 
+  // const onPartialSave = () => {
+  //   const values = form.getValues();
+  //   if (productId) {
+  //     updateProduct.mutate({ id: productId, data: values });
+  //   } else {
+  //     createProduct.mutate(values);
+  //   }
+  // };
+
+  const onBack = () => setStep((prev) => Math.max(prev - 1, 0));
+
+  const onNext = async () => {
+    if (isLastStep) {
+      form.handleSubmit(onSubmit);
+    } else {
+      setStep((prev) => Math.min(prev + 1, steps.length - 1));
+    }
+  };
+
+  const StepComponent = steps[step].Component;
+
+  const submitlabel = productId ? "Update Product" : "Create Product";
   return (
-    <Form {...form}>
-      <ScrollArea className="h-[85vh] px-6 pb-2 py-0">
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <FormField
-            control={form.control}
-            name="title"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Title</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Description</FormLabel>
-                <FormControl>
-                  <Textarea {...field} rows={4} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="price"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Price</FormLabel>
-                <FormControl>
-                  <Input type="number" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="stock"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Stock</FormLabel>
-                <FormControl>
-                  <Input type="number" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="brand"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Brand</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="category"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Category</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="thumbnail"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Thumbnail</FormLabel>
-                <FormControl>
-                  <Input type="url" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+    <FormProvider {...form}>
+      <div className="flex items-center justify-between px-4">
+        <h2 className="text-xl font-semibold">{steps[step].label}</h2>
+        <div className="text-sm text-muted-foreground">
+          Step {step + 1} of {steps.length}
+        </div>
+      </div>
 
-          {form.watch("thumbnail") && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={form.watch("thumbnail")}
-              alt="Preview"
-              className="w-24 h-24 rounded border object-cover"
-            />
-          )}
+      {/* Stepper UI */}
+      <div className="flex items-center justify-between gap-2">
+        {steps.map((s, idx) => (
+          <div
+            key={s.label}
+            className={`flex-1 text-center text-sm font-semibold border-b-2 pb-1 transition-all duration-200 cursor-pointer ${
+              idx === step
+                ? "border-primary text-primary"
+                : "text-muted-foreground/60 border-muted"
+            }`}
+          >
+            {s.label}
+          </div>
+        ))}
+      </div>
+      <ScrollArea className="w-full h-[75vh] px-4 pb-2 pt-1 space-y-6">
+        <form
+          className="grid grid-cols-1 space-y-6"
+          autoComplete="off"
+          onSubmit={form.handleSubmit(onSubmit)}
+        >
+          <StepComponent />
 
-          <DialogFooter>
-            <Button
-              type="submit"
-              disabled={createProduct.isPending || updateProduct.isPending}
-            >
-              {productId ? "Update" : "Create"} Product
-            </Button>
+          <DialogFooter className="sticky bottom-0 bg-background flex justify-between gap-2">
+            {!isFirstStep && (
+              <Button type="button" variant="outline" onClick={onBack}>
+                Previous
+              </Button>
+            )}
+            <div className="ml-auto flex gap-2">
+              {isLastStep ? (
+                <Button
+                  type="submit"
+                  disabled={createProduct.isPending || updateProduct.isPending}
+                >
+                  {submitlabel}
+                </Button>
+              ) : (
+                <>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        className="text-white opacity-30"
+                        // onClick={onPartialSave}
+                        // disabled={
+                        //   createProduct.isPending || updateProduct.isPending
+                        // }
+                      >
+                        Save
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent variant={"info"} side="top">
+                      <p className="font-semibold">Coming soon...</p>
+                    </TooltipContent>
+                  </Tooltip>
+
+                  <Button
+                    type="button"
+                    onClick={onNext}
+                    disabled={
+                      createProduct.isPending || updateProduct.isPending
+                    }
+                  >
+                    Next
+                  </Button>
+                </>
+              )}
+            </div>
           </DialogFooter>
         </form>
       </ScrollArea>
-    </Form>
+    </FormProvider>
   );
-};
+}

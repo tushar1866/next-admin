@@ -2,7 +2,11 @@ import {
   showErrorToast,
   showSuccessToast,
 } from "@/components/providers/hooks/use-toast";
-import { TableData } from "@/components/ui/data-table/types";
+import {
+  FilterState,
+  PaginationT,
+  TableData,
+} from "@/components/ui/data-table/types";
 import {
   CreateUserAPI,
   DeleteUserAPI,
@@ -17,29 +21,38 @@ import { useCallback, useState } from "react";
 type UserTableData = TableData<User, "users">;
 
 export const useUsers = () => {
-  const [pagination, setPagination] = useState<{
-    page: number;
-    skip: number;
-    limit: number;
-  }>({
-    page: 1,
+  const [pagination, setPagination] = useState<
+    Pick<PaginationT, "limit" | "skip">
+  >({
     skip: 0,
     limit: 10,
   });
+  const [filterState, setFilterState] = useState<FilterState>();
   const paginate = useCallback(
-    async (newPagination: { page: number; skip: number; limit: number }) => {
+    async (newPagination: Pick<PaginationT, "limit" | "skip">) => {
       setPagination(newPagination);
     },
+
     []
   );
+  const filter = useCallback((state: FilterState) => {
+    setFilterState(state);
+  }, []);
   const query = useQuery<UserTableData, Error>({
-    queryKey: ["users", pagination.page, pagination.skip, pagination.limit],
-    queryFn: () =>
-      ListUsersAPI(pagination.page, pagination.skip, pagination.limit),
+    queryKey: [
+      "users",
+      pagination.skip,
+      pagination.limit,
+      filterState?.q ?? "",
+      filterState?.sortBy ?? "",
+      filterState?.order ?? "",
+      filterState?.select ?? "",
+    ],
+    queryFn: () => ListUsersAPI({ ...pagination, ...filterState }),
     placeholderData: (previousData) => previousData,
   });
 
-  return { paginate, ...query };
+  return { paginate, filter, ...query };
 };
 
 export const useCreateUser = () => {

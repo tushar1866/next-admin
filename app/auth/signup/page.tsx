@@ -2,13 +2,9 @@ import { SignUpForm } from "../components/signup-form";
 
 export default function SignUpPage() {
   return (
-    <div className="grid min-h-svh lg:grid-cols-2">
-      <div className="w-full flex flex-col px-6 pt-3 md:px-10 overflow-y-auto">
-        <div className="flex flex-1 items-center justify-center">
-          <div className="w-full max-w-sm h-full overflow-y-auto">
-            <SignUpForm />
-          </div>
-        </div>
+    <div className="w-full h-full grid lg:grid-cols-2 overflow-hidden">
+      <div className="w-full max-h-full flex flex-col items-center justify-start overflow-hidden overflow-y-auto py-6 no-scrollbar">
+        <SignUpForm />
       </div>
 
       <div className="bg-muted relative hidden lg:block">

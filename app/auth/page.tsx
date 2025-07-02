@@ -3,13 +3,9 @@ import { SignInForm } from "./components/signin-form";
 
 export default function SignInPage() {
   return (
-    <div className="grid min-h-svh lg:grid-cols-2">
-      <div className="flex flex-col gap-4 p-6 md:p-10">
-        <div className="flex flex-1 items-center justify-center">
-          <div className="w-full max-w-xs">
-            <SignInForm />
-          </div>
-        </div>
+    <div className="w-full h-full grid lg:grid-cols-2 overflow-hidden">
+      <div className="w-full max-h-full flex flex-col items-center justify-center overflow-hidden overflow-y-auto py-6 no-scrollbar">
+        <SignInForm />
       </div>
       <div className="bg-muted relative hidden lg:block">
         {/* eslint-disable-next-line @next/next/no-img-element */}

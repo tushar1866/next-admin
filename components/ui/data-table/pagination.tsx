@@ -10,50 +10,39 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { PaginationT } from "./types";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 
 type PaginationControlsProps = Omit<PaginationT, "page"> & {
-  readonly onPageChange: (pagination: PaginationT) => Promise<void>;
+  readonly onPageChange: (
+    pagination: Pick<PaginationT, "limit" | "skip">
+  ) => Promise<void>;
 };
 
-export function PaginationControls({
-  total,
-  skip,
-  limit,
-  onPageChange,
-}: PaginationControlsProps) {
+export function PaginationControls(props: PaginationControlsProps) {
+  const { onPageChange } = props;
+  const { total, skip, limit } = useMemo(() => {
+    return props;
+  }, [props]);
   const page = useMemo(() => Math.floor(skip / limit) + 1, [skip, limit]);
   const totalPages = useMemo(() => Math.ceil(total / limit), [total, limit]);
-  const [pagination, setPagination] = useState({
-    page: page,
-    total: total,
-    skip: skip,
-    limit: limit,
-  });
 
   const handlePageChange = async (newPage: number) => {
-    const newSkip = (newPage - 1) * pagination.limit;
+    const newSkip = (newPage - 1) * limit;
     await onPageChange({
-      page: newPage,
       skip: newSkip,
-      limit: pagination.limit,
-      total,
+      limit: limit,
     });
-    setPagination((prev) => ({ ...prev, skip: newSkip }));
   };
 
   const handleRowsPerPageChange = async (newLimit: number) => {
-    const newSkip = (pagination.page - 1) * newLimit;
+    const newSkip = (page - 1) * newLimit;
     await onPageChange({
-      page: pagination.page,
       skip: newSkip,
       limit: newLimit,
-      total,
     });
-    setPagination((prev) => ({ ...prev, skip: newSkip, limit: newLimit }));
   };
   return (
-    <div className="flex items-center justify-between gap-4">
+    <div className="flex items-center justify-between gap-4 p-2">
       <div className="flex items-center gap-2">
         <span className="text-sm">Rows:</span>
         <Select
@@ -88,7 +77,7 @@ export function PaginationControls({
           variant="outline"
           size="sm"
           onClick={() => handlePageChange(page + 1)}
-          disabled={page >= total}
+          disabled={page >= totalPages}
         >
           Next
         </Button>

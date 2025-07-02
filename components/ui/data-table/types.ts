@@ -1,4 +1,9 @@
-import { ColumnDef, ColumnFiltersState, RowModel } from "@tanstack/react-table";
+import {
+  ColumnDef,
+  ColumnFiltersState,
+  RowModel,
+  SortingState,
+} from "@tanstack/react-table";
 import { JSX } from "react";
 
 declare module "@tanstack/react-table" {
@@ -17,7 +22,12 @@ export type PaginationT = {
   limit: number;
   page: number;
 };
-
+export type FilterState = {
+  q?: string;
+  sortBy?: string;
+  select?: string;
+  order?: "asc" | "desc";
+};
 export type TableData<T, K extends string = "results"> = {
   [key in K]: Array<T>;
 } & Omit<PaginationT, "page">;
@@ -35,10 +45,13 @@ export type TableProps<T, K extends string = "results"> = {
   emptyText?: string;
   globalFilterExcludeKeys?: (keyof T)[];
   renderSelection?: ColumnDef<T, unknown>;
-  onPageChange: (pagination: PaginationT) => Promise<void>;
+  onPageChange: (
+    pagination: Pick<PaginationT, "limit" | "skip">
+  ) => Promise<void>;
   onRowSelectionChange?: (selectedRows: T[]) => void;
   onFilterChange?: (filters: {
     globalFilter: string;
+    sorting: SortingState;
     columnFilters: ColumnFiltersState;
   }) => void;
   onRowCountChange?: (row: () => RowModel<T>) => void;

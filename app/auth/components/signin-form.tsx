@@ -26,10 +26,10 @@ export function SignInForm() {
     resolver: zodResolver(SignInSchema),
   });
 
-  const siginin = useSignIn();
+  const { mutate, isPending } = useSignIn();
 
   const onSubmit = (data: SignInFormValues) => {
-    siginin.mutate(data);
+    mutate(data);
   };
 
   return (
@@ -80,7 +80,7 @@ export function SignInForm() {
             )}
           />
 
-          <Button type="submit" className="w-full">
+          <Button type="submit" className="w-full" isLoading={isPending}>
             Login
           </Button>
           <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">

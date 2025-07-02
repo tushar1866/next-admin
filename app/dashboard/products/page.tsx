@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { useProducts, useDeleteProduct } from "./components/product-hooks";
-import { ProductForm } from "./components/product-form";
+import ProductForm from "./components/product-form";
 
 import useAlert from "@/components/providers/alert-provider";
 import {
@@ -9,7 +9,6 @@ import {
   showSuccessToast,
 } from "@/components/providers/hooks/use-toast";
 import DataTable from "@/components/ui/data-table";
-import { Product } from "@/types/product";
 import { CellContext, ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,6 +17,7 @@ import {
   DialogContent,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Product } from "@/lib/validations/product";
 
 const ProductTable = DataTable<Product, "products">("products");
 const ActionCell = ({
@@ -46,7 +46,7 @@ const ActionCell = ({
   );
 };
 export default function ProductsPage() {
-  const { data, isLoading, error, paginate } = useProducts();
+  const { data, isLoading, error, paginate, filter } = useProducts();
   const [open, setOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | undefined>(
     undefined
@@ -63,10 +63,10 @@ export default function ProductsPage() {
     return <p className="text-red-500">Error: {error?.message}</p>;
 
   const productColumns: ColumnDef<Product>[] = [
-    { header: "ID", accessorKey: "id" },
+    { header: "ID", accessorKey: "id", enableColumnFilter: false },
     { header: "Title", accessorKey: "title" },
-    { header: "Price", accessorKey: "price" },
-    { header: "Stock", accessorKey: "stock" },
+    { header: "Price", accessorKey: "price", enableColumnFilter: false },
+    { header: "Stock", accessorKey: "stock", enableColumnFilter: false },
     { header: "Brand", accessorKey: "brand" },
     { header: "Category", accessorKey: "category" },
     {
@@ -83,6 +83,7 @@ export default function ProductsPage() {
               action: "Delete",
               onAction: () => {
                 try {
+                  if (!productId) return;
                   deleteProduct.mutateAsync(productId);
                   showSuccessToast("Product deleted!");
                 } catch {
@@ -116,10 +117,17 @@ export default function ProductsPage() {
         selectionMode="multiple"
         globalFilterExcludeKeys={["id"]}
         onPageChange={paginate}
+        onFilterChange={({ globalFilter, sorting }) => {
+          filter({
+            q: globalFilter,
+            sortBy: sorting?.[0]?.id,
+            order: sorting?.[0]?.desc ? "desc" : "asc",
+          });
+        }}
       />
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="h-[97vh] max-h-screen p-0">
-          <DialogHeader className="p-4">
+        <DialogContent className="h-[97vh] max-h-screen gap-0 space-y-0 p-0">
+          <DialogHeader className="p-4 pb-0">
             <DialogTitle>
               {selectedProduct ? "Edit Product" : "Add Product"}
             </DialogTitle>

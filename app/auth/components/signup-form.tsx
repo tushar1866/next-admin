@@ -39,16 +39,16 @@ export function SignUpForm() {
   return (
     <Form {...signupForm}>
       <form
-        className={"flex flex-col gap-6"}
+        className={"grid grid-cols-1 space-y-10 max-w-md"}
         onSubmit={signupForm.handleSubmit(onSubmit)}
       >
-        <div className="flex flex-col items-center gap-2 text-center">
+        <div className="text-center space-y-6">
           <h1 className="text-2xl font-bold">Create a new account</h1>
           <p className="text-muted-foreground text-sm text-balance">
             Fill in your details below to sign up and get started
           </p>
         </div>
-        <div className="grid gap-4 p-1">
+        <div className="grid grid-cols-1 gap-4 p-1">
           <div className="grid grid-cols-2 gap-2">
             <FormField
               control={signupForm.control}
@@ -132,9 +132,10 @@ export function SignUpForm() {
           <Button
             type="submit"
             disabled={mutation.isPending}
+            isLoading={mutation.isPending}
             className="w-full"
           >
-            {mutation.isPending ? "Signing up..." : "Sign Up"}
+            Sign Up
           </Button>
           <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
             <span className="bg-background text-muted-foreground relative z-10 px-2">
