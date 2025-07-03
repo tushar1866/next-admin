@@ -16,6 +16,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Label } from "@/components/ui/label";
+import Image from "next/image";
 
 export function SignInForm() {
   const signinForm = useForm<SignInFormValues>({
@@ -39,9 +40,15 @@ export function SignInForm() {
         onSubmit={signinForm.handleSubmit(onSubmit)}
       >
         <div className="flex flex-col items-center gap-2 text-center">
+          <Image
+            src={"/logo-title.svg"}
+            alt="logo-title"
+            width={150}
+            height={150}
+          />
           <h1 className="text-2xl font-bold">Login to your account</h1>
-          <p className="text-muted-foreground text-sm text-balance">
-            Enter your email below to login to your account
+          <p className="text-muted-foreground text-xs text-balance">
+            Enter your username below to login to your account
           </p>
         </div>
         <div className="grid gap-4 p-1">

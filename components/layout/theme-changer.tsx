@@ -1,6 +1,6 @@
 "use client";
 import { useEffect } from "react";
-import { themes, Theme } from "../themes";
+import { themes } from "../../lib/constants/themes";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,7 +9,8 @@ import {
 } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
 import { SunIcon, MoonIcon } from "lucide-react";
-import { useThemeStore } from "@/store/theme-store";
+import { useCommonStore } from "@/store/common";
+import { Theme } from "@/types/common";
 
 const THEME_KEY = "app-theme";
 
@@ -20,7 +21,7 @@ function applyTheme(theme: Theme) {
 }
 
 export default function ThemeChanger() {
-  const { theme: selected, setTheme } = useThemeStore();
+  const { theme: selected, setTheme } = useCommonStore();
 
   useEffect(() => {
     const saved = localStorage.getItem(THEME_KEY);

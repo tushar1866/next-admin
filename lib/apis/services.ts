@@ -2,32 +2,27 @@ import { SignInFormValues, SignUpFormValues } from "../validations/auth";
 import api from "./axios";
 import { UserFormValues } from "../validations/user";
 import { Product } from "../validations/product";
+import type { Post } from "@/types/post";
+import { FilterState, PaginationT } from "@/components/ui/data-table/types";
 
 export const SignInAPI = async (data: SignInFormValues) => {
   const res = await api.post("/auth/login", { ...data, expiresInMins: 60 });
-  // The API returns user fields and tokens in the same object
   const { accessToken, refreshToken, ...user } = res.data;
   return { user, accessToken, refreshToken };
 };
 
 export const SignUpAPI = async (data: SignUpFormValues) => {
   const res = await api.post("/users/add", data);
-  // The API returns the user object only
   return { user: res.data };
 };
 
 export const AuthMeAPI = async () => {
   const res = await api.get("/auth/me");
-  return await res.data;
+  return res?.data;
 };
-export const ListUsersAPI = async (params: {
-  skip: number;
-  limit: number;
-  q?: string;
-  sortBy?: string;
-  select?: string;
-  order?: "asc" | "desc";
-}) => {
+export const ListUsersAPI = async (
+  params: Pick<PaginationT, "limit" | "skip"> & FilterState
+) => {
   const endPoint = params.q ? `/users/search` : `/users`;
   const res = await api.get(endPoint, { params });
   return res.data;
@@ -56,14 +51,9 @@ export const ListCategoriesAPI = async () => {
   return res.data;
 };
 
-export const ListProductsAPI = async (params: {
-  skip: number;
-  limit: number;
-  q?: string;
-  sortBy?: string;
-  select?: string;
-  order?: "asc" | "desc";
-}) => {
+export const ListProductsAPI = async (
+  params: Pick<PaginationT, "limit" | "skip"> & FilterState
+) => {
   const endPoint = params.q ? `/products/search` : `/products`;
   const res = await api.get(endPoint, { params });
   return res.data;
@@ -82,4 +72,17 @@ export const UpdateProductAPI = async (id: number, data: Partial<Product>) => {
 export const DeleteProductAPI = async (id: number) => {
   const res = await api.delete(`/products/${id}`);
   return res.data;
+};
+
+export const ListPostsAPI = async (
+  params: Pick<PaginationT, "limit" | "skip"> & FilterState
+) => {
+  const endPoint = params.q ? `/posts/search` : `/posts`;
+  const res = await api.get(endPoint, { params });
+  return res.data;
+};
+
+export const GetPostAPI = async (id: number) => {
+  const res = await api.get(`/posts/${id}`);
+  return res.data as Post;
 };

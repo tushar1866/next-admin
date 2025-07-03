@@ -1,12 +1,9 @@
+import useQueryParams from "@/components/providers/hooks/use-query-params";
 import {
   showErrorToast,
   showSuccessToast,
 } from "@/components/providers/hooks/use-toast";
-import {
-  FilterState,
-  PaginationT,
-  TableData,
-} from "@/components/ui/data-table/types";
+import { TableData } from "@/components/ui/data-table/types";
 import {
   CreateProductAPI,
   DeleteProductAPI,
@@ -16,7 +13,6 @@ import {
 } from "@/lib/apis/services";
 import { Product } from "@/lib/validations/product";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useCallback, useState } from "react";
 
 type ProductTableData = TableData<Product, "products">;
 
@@ -29,22 +25,7 @@ export const useCategory = () => {
 };
 
 export const useProducts = () => {
-  const [pagination, setPagination] = useState<
-    Omit<PaginationT, "page" | "total">
-  >({
-    skip: 0,
-    limit: 10,
-  });
-  const [filterState, setFilterState] = useState<FilterState>();
-  const paginate = useCallback(
-    async (newPagination: Pick<PaginationT, "limit" | "skip">) => {
-      setPagination(newPagination);
-    },
-    []
-  );
-  const filter = useCallback((state: FilterState) => {
-    setFilterState(state);
-  }, []);
+  const { filter, filterState, paginate, pagination } = useQueryParams();
   const query = useQuery<ProductTableData, Error>({
     queryKey: [
       "products",

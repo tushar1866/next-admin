@@ -6,6 +6,7 @@ import {
   BreadcrumbLink,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { HomeIcon } from "lucide-react";
 
 function toTitle(str: string) {
   return str.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
@@ -18,7 +19,7 @@ export default function AppBreadcrumbs() {
   return (
     <Breadcrumb>
       <BreadcrumbItem key="home">
-        {segments.length > 0 && <BreadcrumbSeparator />}
+        {segments.length > 0 && <HomeIcon size={14} className="mx-2" />}
       </BreadcrumbItem>
       {segments.map((seg, idx) => {
         const href = "/" + segments.slice(0, idx + 1).join("/");

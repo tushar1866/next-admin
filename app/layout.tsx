@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Poppins, Fira_Mono } from "next/font/google";
 import "./globals.css";
 import RootProvider from "@/components/providers/root-provider";
-import Head from "next/head";
 
 const poppins = Poppins({
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
@@ -28,9 +27,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <Head>
-        <title></title>
-      </Head>
       <body className={`${poppins.variable} ${firaMono.variable} antialiased`}>
         <RootProvider>{children}</RootProvider>
       </body>

@@ -40,6 +40,7 @@ function addRefreshSubscriber(cb: (token: string) => Promise<void>) {
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
+    debugger;
     if (!window.location.pathname.startsWith("/auth")) {
       const originalRequest = error.config;
       if (error.response?.status === 401 && !originalRequest._retry) {
@@ -62,8 +63,8 @@ api.interceptors.response.use(
             refreshToken,
           });
 
-          const newToken = res.data.accessToken;
-          const newRefreshToken = res.data.refreshToken;
+          const newToken = res?.data?.accessToken;
+          const newRefreshToken = res?.data?.refreshToken;
           localStorage.setItem("token", newToken);
           localStorage.setItem("refresh_token", newRefreshToken);
 

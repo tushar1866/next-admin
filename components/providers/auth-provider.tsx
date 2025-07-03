@@ -48,5 +48,5 @@ export function AuthProvider({
   if (isLoading) {
     return <Loader />;
   }
-  return <>{children}</>;
+  return children;
 }

@@ -1,8 +1,4 @@
-export type Theme = {
-  name: string;
-  varient: "Dark" | "Light";
-  variables: Record<string, string>;
-};
+import { Theme } from "@/types/common";
 
 export const themes: Theme[] = [
   {

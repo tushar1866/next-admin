@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/form";
 import { PhoneInput } from "@/components/ui/phone-input";
 import Link from "next/link";
+import Image from "next/image";
 
 export function SignUpForm() {
   const signupForm = useForm<SignUpFormValues>({
@@ -39,16 +40,22 @@ export function SignUpForm() {
   return (
     <Form {...signupForm}>
       <form
-        className={"grid grid-cols-1 space-y-10 max-w-md"}
+        className={"grid grid-cols-1 space-y-6 max-w-md"}
         onSubmit={signupForm.handleSubmit(onSubmit)}
       >
-        <div className="text-center space-y-6">
+        <div className="flex flex-col items-center justify-center text-center gap-2">
+          <Image
+            src={"/logo-title.svg"}
+            alt="logo-title"
+            width={150}
+            height={150}
+          />
           <h1 className="text-2xl font-bold">Create a new account</h1>
-          <p className="text-muted-foreground text-sm text-balance">
+          <p className="text-muted-foreground text-xs text-balance">
             Fill in your details below to sign up and get started
           </p>
         </div>
-        <div className="grid grid-cols-1 gap-4 p-1">
+        <div className="grid grid-cols-1 gap-4">
           <div className="grid grid-cols-2 gap-2">
             <FormField
               control={signupForm.control}

@@ -1,5 +1,6 @@
-import { useRouter } from "next/navigation";
+"use client";
 import { useTransition } from "react";
+import { useRouter } from "next/navigation";
 
 function useRoute() {
   const router = useRouter();

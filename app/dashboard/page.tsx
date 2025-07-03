@@ -1,3 +1,4 @@
+"use client";
 import { RevenueChart } from "./components/revenue-chart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DollarSign, Users, Activity, BarChart2 } from "lucide-react";

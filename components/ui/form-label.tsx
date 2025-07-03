@@ -1,7 +1,7 @@
 import * as React from "react";
 
 interface LabelProps extends React.LabelHTMLAttributes<HTMLLabelElement> {
-  children: React.ReactNode;
+  readonly children: React.ReactNode;
 }
 
 export function FormLabel({ children, ...props }: LabelProps) {

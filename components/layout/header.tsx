@@ -11,12 +11,12 @@ import useRoute from "../providers/hooks/use-route";
 import { logout } from "@/store/auth";
 import ThemeChanger from "./theme-changer";
 import AppBreadcrumbs from "./breadcrumbs";
-import { useSidebarStore } from "@/store/sidebar-store";
+import { useCommonStore } from "@/store/common";
 import { Menu } from "lucide-react";
 
-export function Header() {
+export default function Header() {
   const { navigate } = useRoute();
-  const { toggle } = useSidebarStore();
+  const { toggleSidebar } = useCommonStore();
   return (
     <header className="flex h-16 items-center justify-between px-4 border-b shadow-sm">
       <div className="flex items-center gap-2 flex-1">
@@ -25,7 +25,7 @@ export function Header() {
           variant="ghost"
           size="icon"
           className="md:hidden"
-          onClick={toggle}
+          onClick={toggleSidebar}
           aria-label="Toggle sidebar"
         >
           <Menu className="h-5 w-5" />
