@@ -1,36 +1,38 @@
 "use client";
 import { useCallback, useState } from "react";
 import { FilterState, PaginationT } from "@/components/ui/data-table/types";
+type QueryParam = FilterState & Pick<PaginationT, "limit" | "skip">;
+function useQueryParams(init?: QueryParam) {
+  const [queryParams, setQueryParams] = useState<QueryParam>(
+    init ?? {
+      limit: 10,
+      skip: 0,
+    }
+  );
 
-function useQueryParams() {
-  const [pagination, setPagination] = useState<
-    Omit<PaginationT, "page" | "total">
-  >({
-    skip: 0,
-    limit: 10,
-  });
-  const [filterState, setFilterState] = useState<FilterState>();
   const paginate = useCallback(
-    async (newPagination: Pick<PaginationT, "limit" | "skip">) => {
-      setPagination(newPagination);
+    (newPagination: Pick<PaginationT, "limit" | "skip">) => {
+      setQueryParams((prev) => ({ ...prev, ...newPagination }));
     },
     []
   );
+
   const next = useCallback(() => {
-    setPagination((prev) => ({
+    setQueryParams((prev) => ({
       ...prev,
       skip: prev.skip + prev.limit,
     }));
   }, []);
 
   const reset = useCallback(() => {
-    setPagination({ skip: 0, limit: pagination.limit });
-  }, [pagination.limit]);
-  const filter = useCallback((state: FilterState) => {
-    setPagination((prev) => ({ ...prev, skip: 0 }));
-    setFilterState(state);
+    setQueryParams({ skip: 0, limit: 10 });
   }, []);
-  return { pagination, paginate, filterState, filter, next, reset };
+
+  const filter = useCallback((state: FilterState) => {
+    setQueryParams((prev) => ({ ...prev, ...state }));
+  }, []);
+
+  return { queryParams, paginate, filter, next, reset, setQueryParams };
 }
 
 export default useQueryParams;

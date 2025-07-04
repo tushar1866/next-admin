@@ -45,9 +45,7 @@ export type TableProps<T, K extends string = "results"> = {
   emptyText?: string;
   globalFilterExcludeKeys?: (keyof T)[];
   renderSelection?: ColumnDef<T, unknown>;
-  onPageChange: (
-    pagination: Pick<PaginationT, "limit" | "skip">
-  ) => Promise<void>;
+  onPageChange: (pagination: Pick<PaginationT, "limit" | "skip">) => void;
   onRowSelectionChange?: (selectedRows: T[]) => void;
   onFilterChange?: (filters: {
     globalFilter: string;

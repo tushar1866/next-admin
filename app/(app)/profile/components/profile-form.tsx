@@ -30,10 +30,10 @@ export function ProfileForm({
   user,
   onDone,
 }: {
-  user: UserFormValues;
-  onDone: () => void;
+  readonly user: UserFormValues;
+  readonly onDone: () => void;
 }) {
-  const [previewImage, setPreviewImage] = useState<string>(user?.image || "");
+  const [previewImage, setPreviewImage] = useState<string>(user?.image ?? "");
   const form = useForm<UserFormValues>({
     resolver: zodResolver(UserFormSchema),
     defaultValues: user,
@@ -44,7 +44,7 @@ export function ProfileForm({
   useEffect(() => {
     if (user) {
       reset(user);
-      setPreviewImage(user.image || "");
+      setPreviewImage(user.image ?? "");
     }
   }, [user, reset]);
 

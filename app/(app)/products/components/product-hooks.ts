@@ -25,17 +25,18 @@ export const useCategory = () => {
 };
 
 export const useProducts = () => {
-  const { filter, filterState, paginate, pagination } = useQueryParams();
+  const { filter, queryParams, paginate } = useQueryParams();
   const query = useQuery<ProductTableData, Error>({
     queryKey: [
       "products",
-      pagination,
-      filterState?.q ?? "",
-      filterState?.sortBy ?? "",
-      filterState?.order ?? "",
-      filterState?.select ?? "",
+      queryParams.skip,
+      queryParams.limit,
+      queryParams?.q ?? "",
+      queryParams?.sortBy ?? "",
+      queryParams?.order ?? "",
+      queryParams?.select ?? "",
     ],
-    queryFn: () => ListProductsAPI({ ...pagination, ...filterState }),
+    queryFn: () => ListProductsAPI(queryParams),
     placeholderData: (previousData) => previousData,
   });
 

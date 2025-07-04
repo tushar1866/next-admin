@@ -1,11 +1,8 @@
 "use client";
 
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { useEffect, useState } from "react";
-import { FilterState } from "@/components/ui/data-table/types";
-import { usePosts } from "./post-hooks";
+import { FilterState, PaginationT } from "@/components/ui/data-table/types";
 import { X } from "lucide-react";
 import {
   Select,
@@ -14,37 +11,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useDebounce } from "@/components/providers/hooks/use-debounce";
-
-export function PostFilters() {
-  const { filter, reset } = usePosts();
-  const [state, setState] = useState<FilterState>({
-    q: "",
-    sortBy: "",
-    order: "desc",
-  });
-
-  const debouncedQ = useDebounce(state.q, 500);
-
-  useEffect(() => {
-    filter({ ...state, q: debouncedQ });
-  }, [debouncedQ, state.sortBy, state.order, filter, state]);
-
+import { DebouncedInput } from "@/components/ui/data-table/filters";
+type QueryParam = FilterState & Omit<PaginationT, "page" | "total">;
+export function PostFilters({
+  queryParams,
+  onChange,
+}: {
+  readonly queryParams: QueryParam;
+  readonly onChange: React.Dispatch<React.SetStateAction<QueryParam>>;
+}) {
   const handleClear = () => {
-    setState({ q: "", sortBy: "", order: "desc" });
-    filter({});
-    reset(); // optional: go to first page
+    onChange({ limit: 9, skip: 0, order: "asc" });
   };
 
   return (
     <div className="flex flex-wrap items-end gap-4 py-4 bg-background/50">
       <div className="space-y-1">
         <Label htmlFor="q">Search</Label>
-        <Input
+        <DebouncedInput
           id="q"
           placeholder="Search posts..."
-          value={state.q}
-          onChange={(e) => setState((prev) => ({ ...prev, q: e.target.value }))}
+          value={queryParams?.q ?? ""}
+          onChange={(e) => onChange((prev) => ({ ...prev, q: String(e) }))}
           className="w-[200px]"
         />
       </div>
@@ -52,9 +40,9 @@ export function PostFilters() {
       <div className="space-y-1">
         <Label htmlFor="sortBy">Sort By</Label>
         <Select
-          value={state.sortBy}
+          value={queryParams.sortBy}
           onValueChange={(value) =>
-            setState((prev) => ({ ...prev, sortBy: value }))
+            onChange((prev) => ({ ...prev, sortBy: value }))
           }
         >
           <SelectTrigger className="w-[160px]">
@@ -71,9 +59,9 @@ export function PostFilters() {
       <div className="space-y-1">
         <Label htmlFor="order">Order</Label>
         <Select
-          value={state.order}
+          value={queryParams.order}
           onValueChange={(value) =>
-            setState((prev) => ({ ...prev, order: value as "asc" | "desc" }))
+            onChange((prev) => ({ ...prev, order: value as "asc" | "desc" }))
           }
         >
           <SelectTrigger className="w-[120px]">

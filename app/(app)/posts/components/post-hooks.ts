@@ -7,42 +7,37 @@ import useQueryParams from "@/components/providers/hooks/use-query-params";
 type PostTableData = TableData<Post, "posts">;
 
 export const usePosts = () => {
-  const { filter, filterState, pagination, reset } = useQueryParams();
+  const { setQueryParams, queryParams } = useQueryParams({
+    limit: 9,
+    skip: 0,
+    order: "asc",
+  });
 
   const queryKey = [
     "posts",
-    filterState?.q ?? "",
-    filterState?.sortBy ?? "",
-    filterState?.order ?? "",
-    filterState?.select ?? "",
+    queryParams.q,
+    queryParams.order,
+    queryParams.sortBy,
   ];
 
   const query = useInfiniteQuery<PostTableData, Error>({
     queryKey,
-    queryFn: ({ pageParam = 0 }) =>
-      ListPostsAPI({
-        skip: pageParam as number,
-        limit: pagination.limit,
-        ...filterState,
-      }),
-    initialPageParam: 0,
-    getNextPageParam: (lastPage, allPages) => {
-      const loadedCount = allPages.reduce(
-        (acc, page) => acc + page.posts.length,
-        0
-      );
-      if (lastPage.posts.length < pagination.limit) return undefined;
-      return loadedCount;
+    queryFn: ({ pageParam }) =>
+      ListPostsAPI({ ...queryParams, skip: pageParam as number }),
+    initialData: {
+      pageParams: [null],
+      pages: [],
     },
+    getNextPageParam: (lastPage) => {
+      const newSkip = lastPage.skip + lastPage.limit;
+      return newSkip;
+    },
+    initialPageParam: queryParams.skip,
   });
-
-  const allPosts = query.data?.pages.flatMap((page) => page.posts) ?? [];
 
   return {
     ...query,
-    posts: allPosts,
-    fetchNext: query.fetchNextPage,
-    filter,
-    reset,
+    queryParams,
+    setQueryParams,
   };
 };

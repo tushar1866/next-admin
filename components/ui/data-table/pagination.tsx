@@ -15,7 +15,7 @@ import { useMemo } from "react";
 type PaginationControlsProps = Omit<PaginationT, "page"> & {
   readonly onPageChange: (
     pagination: Pick<PaginationT, "limit" | "skip">
-  ) => Promise<void>;
+  ) => void;
 };
 
 export function PaginationControls(props: PaginationControlsProps) {
@@ -28,7 +28,7 @@ export function PaginationControls(props: PaginationControlsProps) {
 
   const handlePageChange = async (newPage: number) => {
     const newSkip = (newPage - 1) * limit;
-    await onPageChange({
+    onPageChange({
       skip: newSkip,
       limit: limit,
     });
@@ -36,7 +36,7 @@ export function PaginationControls(props: PaginationControlsProps) {
 
   const handleRowsPerPageChange = async (newLimit: number) => {
     const newSkip = (page - 1) * newLimit;
-    await onPageChange({
+    onPageChange({
       skip: newSkip,
       limit: newLimit,
     });

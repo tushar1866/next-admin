@@ -1,15 +1,23 @@
 "use client";
 
 import React from "react";
-import { usePosts } from "./components/post-hooks";
 import { PostCard } from "./components/post-card";
 import { InfiniteScrollWrapper } from "@/components/ui/infinite-scroll-wrapper";
 import PostSkeleton from "./components/post-skeleton";
 import { PostFilters } from "./components/post-filters";
+import { usePosts } from "./components/post-hooks";
 
 export default function PostsPage() {
-  const { posts, isLoading, error, fetchNext, isFetchingNextPage } = usePosts();
-
+  const {
+    data,
+    isLoading,
+    isFetchingNextPage,
+    error,
+    fetchNextPage,
+    queryParams,
+    setQueryParams,
+  } = usePosts();
+  const posts = data?.pages?.flatMap((page) => page.posts) ?? [];
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
@@ -26,11 +34,11 @@ export default function PostsPage() {
 
   return (
     <>
-      <PostFilters />
+      <PostFilters {...{ queryParams, onChange: setQueryParams }} />
       <InfiniteScrollWrapper
         items={posts}
         renderItem={(post) => <PostCard key={post.id} post={post} />}
-        fetchNext={fetchNext}
+        fetchNext={fetchNextPage}
         isFetching={isFetchingNextPage}
         skeletonCount={4}
         renderSkeleton={PostSkeleton}

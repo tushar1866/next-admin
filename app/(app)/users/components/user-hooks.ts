@@ -1,12 +1,9 @@
+import useQueryParams from "@/components/providers/hooks/use-query-params";
 import {
   showErrorToast,
   showSuccessToast,
 } from "@/components/providers/hooks/use-toast";
-import {
-  FilterState,
-  PaginationT,
-  TableData,
-} from "@/components/ui/data-table/types";
+import { TableData } from "@/components/ui/data-table/types";
 import {
   CreateUserAPI,
   DeleteUserAPI,
@@ -16,39 +13,22 @@ import {
 import { UserFormValues } from "@/lib/validations/user";
 import { User } from "@/types/user";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useCallback, useState } from "react";
 
 type UserTableData = TableData<User, "users">;
 
 export const useUsers = () => {
-  const [pagination, setPagination] = useState<
-    Pick<PaginationT, "limit" | "skip">
-  >({
-    skip: 0,
-    limit: 10,
-  });
-  const [filterState, setFilterState] = useState<FilterState>();
-  const paginate = useCallback(
-    async (newPagination: Pick<PaginationT, "limit" | "skip">) => {
-      setPagination(newPagination);
-    },
-
-    []
-  );
-  const filter = useCallback((state: FilterState) => {
-    setFilterState(state);
-  }, []);
+  const { queryParams, paginate, filter } = useQueryParams();
   const query = useQuery<UserTableData, Error>({
     queryKey: [
       "users",
-      pagination.skip,
-      pagination.limit,
-      filterState?.q ?? "",
-      filterState?.sortBy ?? "",
-      filterState?.order ?? "",
-      filterState?.select ?? "",
+      queryParams.skip,
+      queryParams.limit,
+      queryParams?.q ?? "",
+      queryParams?.sortBy ?? "",
+      queryParams?.order ?? "",
+      queryParams?.select ?? "",
     ],
-    queryFn: () => ListUsersAPI({ ...pagination, ...filterState }),
+    queryFn: () => ListUsersAPI(queryParams),
     placeholderData: (previousData) => previousData,
   });
 
