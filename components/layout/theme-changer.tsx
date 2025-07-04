@@ -30,9 +30,12 @@ export default function ThemeChanger() {
       if (found) {
         setTheme(found);
         applyTheme(found);
+        if (found.varient === "Dark") {
+          document.documentElement.classList.add("dark");
+        } else {
+          document.documentElement.classList.remove("dark");
+        }
       }
-    } else {
-      applyTheme(themes[0]);
     }
   }, [setTheme]);
 
@@ -40,8 +43,13 @@ export default function ThemeChanger() {
     setTheme(theme);
     localStorage.setItem(THEME_KEY, theme.name);
     applyTheme(theme);
-  };
 
+    if (theme.varient === "Dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  };
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

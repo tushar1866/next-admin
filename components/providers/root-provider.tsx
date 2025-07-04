@@ -3,7 +3,6 @@ import React from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "../ui/sonner";
 import { AuthProvider } from "./auth-provider";
-import { LayoutProvider } from "./layout-provider";
 import { AlertProvider } from "./alert-provider";
 
 function RootProvider({ children }: { readonly children: React.ReactNode }) {
@@ -25,7 +24,7 @@ function RootProvider({ children }: { readonly children: React.ReactNode }) {
       <AlertProvider>
         <AuthProvider>
           <Toaster />
-          <LayoutProvider>{children}</LayoutProvider>
+          {children}
         </AuthProvider>
       </AlertProvider>
     </QueryClientProvider>

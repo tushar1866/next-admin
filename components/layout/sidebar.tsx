@@ -66,7 +66,7 @@ export function Sidebar() {
                   "flex items-center gap-3 px-4 py-2 text-sm font-medium rounded-md justify-start",
                   pathname === item.href
                     ? "bg-primary-foreground text-primary hover:bg-primary-foreground hover:text-primary"
-                    : "hover:bg-primary-foreground/50 hover:text-muted"
+                    : "hover:bg-primary-foreground/50 hover:text-muted dark:hover:bg-primary-foreground dark:hover:text-primary/80"
                 )}
               >
                 <Icon className="w-4 h-4" />

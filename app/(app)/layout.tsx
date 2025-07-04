@@ -1,17 +1,15 @@
 "use client";
 import React, { ReactNode } from "react";
-import useRoute from "./hooks/use-route";
-import Loader from "../ui/loader";
-import Header from "../layout/header";
-import { usePathname } from "next/navigation";
-import { Sidebar } from "../layout/sidebar";
+import Header from "@/components/layout/header";
+import { Sidebar } from "@/components/layout/sidebar";
+import useRoute from "@/components/providers/hooks/use-route";
+import Loader from "@/components/ui/loader";
 
-export function LayoutProvider({ children }: { readonly children: ReactNode }) {
-  const pathname = usePathname();
+function AppLayout({ children }: { readonly children: ReactNode }) {
   const { isPending } = useRoute();
-  const isPublic = pathname.includes("auth");
+
   if (isPending) return <Loader />;
-  return !isPublic ? (
+  return (
     <div className="flex h-screen overflow-hidden">
       <Sidebar />
       <div className="flex flex-col flex-1 overflow-hidden">
@@ -21,7 +19,7 @@ export function LayoutProvider({ children }: { readonly children: ReactNode }) {
         </main>
       </div>
     </div>
-  ) : (
-    children
   );
 }
+
+export default AppLayout;
