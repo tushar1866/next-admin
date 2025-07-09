@@ -32,7 +32,9 @@ export function PostFilters({
           id="q"
           placeholder="Search posts..."
           value={queryParams?.q ?? ""}
-          onChange={(e) => onChange((prev) => ({ ...prev, q: String(e) }))}
+          onChange={(e) =>
+            onChange((prev) => ({ ...prev, skip: 0, limit: 9, q: String(e) }))
+          }
           className="w-[200px]"
         />
       </div>
@@ -42,7 +44,7 @@ export function PostFilters({
         <Select
           value={queryParams.sortBy}
           onValueChange={(value) =>
-            onChange((prev) => ({ ...prev, sortBy: value }))
+            onChange((prev) => ({ ...prev, skip: 0, limit: 9, sortBy: value }))
           }
         >
           <SelectTrigger className="w-[160px]">
@@ -61,7 +63,12 @@ export function PostFilters({
         <Select
           value={queryParams.order}
           onValueChange={(value) =>
-            onChange((prev) => ({ ...prev, order: value as "asc" | "desc" }))
+            onChange((prev) => ({
+              ...prev,
+              skip: 0,
+              limit: 9,
+              order: value as "asc" | "desc",
+            }))
           }
         >
           <SelectTrigger className="w-[120px]">

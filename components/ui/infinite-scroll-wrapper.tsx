@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { useInView } from "react-intersection-observer";
 
 interface InfiniteScrollWrapperProps<T> {
@@ -27,10 +27,15 @@ export function InfiniteScrollWrapper<T>({
   gridClassName = "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4",
 }: Readonly<InfiniteScrollWrapperProps<T>>) {
   const { ref, inView } = useInView({ threshold: 0 });
-
+  const hasFetchedRef = useRef(false);
   useEffect(() => {
-    if (inView && hasMore && !isFetching) {
+    if (inView && hasMore && !isFetching && !hasFetchedRef.current) {
+      hasFetchedRef.current = true;
       fetchNext();
+    }
+
+    if (!inView) {
+      hasFetchedRef.current = false;
     }
   }, [inView, hasMore, isFetching, fetchNext]);
 

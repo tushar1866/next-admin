@@ -1,11 +1,13 @@
 "use client";
 import { useCallback, useState } from "react";
 import { FilterState, PaginationT } from "@/components/ui/data-table/types";
+
 type QueryParam = FilterState & Pick<PaginationT, "limit" | "skip">;
+
 function useQueryParams(init?: QueryParam) {
   const [queryParams, setQueryParams] = useState<QueryParam>(
     init ?? {
-      limit: 10,
+      limit: 9,
       skip: 0,
     }
   );

@@ -47,7 +47,7 @@ export default function Header() {
             <Button
               variant="ghost"
               className="w-full justify-start"
-              onClick={() => navigate("/dashboard/profile")}
+              onClick={() => navigate("/profile")}
             >
               Profile
             </Button>

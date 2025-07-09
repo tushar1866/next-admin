@@ -22,7 +22,7 @@ type AlertMetaData = {
   cancel?: string;
   action: string;
   onCancel?: () => void;
-  onAction: () => void;
+  onAction: () => Promise<void> | void;
 };
 type AlertContextType = {
   confirm: (metadata: AlertMetaData) => void;
@@ -43,7 +43,7 @@ function AlertProvider({ children }: { readonly children: React.ReactNode }) {
   };
   const handleAction = async () => {
     setLoading(true);
-    onAction();
+    await onAction();
     setOpen(false);
     setLoading(false);
   };

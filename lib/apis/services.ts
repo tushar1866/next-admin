@@ -86,3 +86,32 @@ export const GetPostAPI = async (id: number) => {
   const res = await api.get(`/posts/${id}`);
   return res.data as Post;
 };
+
+export const CreatePost = async (data: Partial<Post>) => {
+  const res = await api.post("/posts", data);
+  return res.data;
+};
+
+export const UpdatePost = async (id: number, data: Partial<Post>) => {
+  const res = await api.put(`/posts/${id}`, data);
+  return res.data;
+};
+
+export const DeletePost = async (id: number) => {
+  const res = await api.delete(`/posts/${id}`);
+  return res.data;
+};
+
+export const ListCommentsByPost = async (
+  postId: number,
+  params: Pick<PaginationT, "limit" | "skip"> & FilterState
+) => api.get(`/posts/${postId}/comments`, { params }).then((r) => r.data);
+
+export const CreateComment = async (data: {
+  postId: number;
+  body: string;
+  userId: number;
+}) => {
+  const res = await api.post(`/comments/add`, data);
+  return res.data;
+};
